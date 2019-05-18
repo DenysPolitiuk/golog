@@ -12,16 +12,16 @@ const (
 	fileExtension   = ".log"
 	combineFilename = "combine"
 	timeLayout      = "02-01-2006 15:04:05.0000"
-	dateRune        = "@DATE"
-	severityRune    = "@SEVERITY"
-	msgRune         = "@MSG"
+	DateRune        = "@DATE"
+	SeverityRune    = "@SEVERITY"
+	MsgRune         = "@MSG"
 )
 
 var (
 	Location      = "."
 	Application   = ""
 	IsMultiLog    = true
-	MessageFormat = "[" + dateRune + "][" + severityRune + "] : " + msgRune
+	MessageFormat = "[" + DateRune + "][" + SeverityRune + "] : " + MsgRune
 )
 
 type CustomError string
@@ -43,15 +43,27 @@ func (s Severity) String() string {
 	return string(s)
 }
 
+func Error(msg string) (string, error) {
+	return Log(msg, ERROR)
+}
+
+func Debug(msg string) (string, error) {
+	return Log(msg, DEBUG)
+}
+
+func Info(msg string) (string, error) {
+	return Log(msg, INFO)
+}
+
 func LogAny(msg, severity string) (string, error) {
 	return Log(msg, Severity(severity))
 }
 
 func Log(msg string, severity Severity) (string, error) {
 	timestamp := fmt.Sprint(time.Now().Format(timeLayout))
-	entry := strings.Replace(MessageFormat, dateRune, timestamp, -1)
-	entry = strings.Replace(entry, severityRune, strings.ToUpper(string(severity)), -1)
-	entry = strings.Replace(entry, msgRune, msg, -1)
+	entry := strings.Replace(MessageFormat, DateRune, timestamp, -1)
+	entry = strings.Replace(entry, SeverityRune, strings.ToUpper(string(severity)), -1)
+	entry = strings.Replace(entry, MsgRune, msg, -1)
 	var err error
 	if IsMultiLog {
 		severityFile, err := fileSetup(Location, makeFileName(string(severity)))
